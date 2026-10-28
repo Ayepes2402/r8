@@ -27,6 +27,7 @@ function setup() {
   makeGhost();
   for (let i = 0; i < 90; i++) dust.push({ x: random(), y: random(), s: random(0.4, 1.4) });
   setupControls();
+  setupWhy();
   updateLabels();
 }
 
@@ -119,6 +120,7 @@ function startSwarm(s) {
 
   // GENERAR RUTA IMPERFECTA: La IA deforma los puntos acumulando error y reaccionando a las dudas
   let accumulatedError = createVector(0, 0);
+  const ideal = rawPath.map(p => aiMode === "mirror" ? { x: width - p.x, y: height - p.y } : { x: p.x, y: p.y });
   const imperfectPath = rawPath.map((p, idx) => {
     let px = p.x, py = p.y;
     if (aiMode === "mirror") {
@@ -160,6 +162,7 @@ function startSwarm(s) {
     mode: aiMode,
     src: s,
     path: imperfectPath,
+    ideal,
     agents,
     human,
     frames: 0,
@@ -223,13 +226,28 @@ function finishSwarm(w) {
   }
   
   // Calcular porcentaje realista de imprecisión
-  const fidelity = floor(random(62, 84));
+  const fidelity = measureFidelity(w);
+  w.fid = fidelity; w.humanSec = w.human.sec; w.machineSec = w.frames / 60;
   noteStats = { you: w.human.sec, machine: w.frames / 60, fid: fidelity, pauses: w.human.pauses };
   const p = noteStats.pauses;
   
   note = `Tu trazo tomó ${noteStats.you.toFixed(1)} s (${p} ${p === 1 ? "pausa" : "pausas"}). ` +
     `La IA intentó replicarlo en ${noteStats.machine.toFixed(1)} s pero solo alcanzó un ${fidelity}% de fidelidad.`;
   updateLabels();
+}
+
+// Fidelidad real: distancia media entre la ruta ideal y lo que dibujaron las 3 hebras
+function measureFidelity(w) {
+  let tot = 0, n = 0;
+  for (const a of w.agents) {
+    if (!a.full.length) continue;
+    for (const q of w.ideal) {
+      let m = Infinity;
+      for (const h of a.full) { const d = (h.x - q.x) ** 2 + (h.y - q.y) ** 2; if (d < m) m = d; }
+      tot += Math.sqrt(m); n++;
+    }
+  }
+  return n ? constrain(round(100 * Math.exp(-(tot / n) / 25)), 1, 99) : 0;
 }
 
 function drawSwarm(w) {
@@ -315,6 +333,7 @@ function setupControls() {
     const tools = document.querySelector(".tools").getBoundingClientRect();
     const topbar = document.querySelector(".topbar").getBoundingClientRect();
     let inTools = (x >= tools.left && x <= tools.right && y >= tools.top && y <= tools.bottom);
+    if ($("whyPanel") && $("whyPanel").classList.contains("open")) return true;
     let inTopbar = (y <= topbar.bottom);
     return inTools || inTopbar;
   };
@@ -408,8 +427,9 @@ function setupControls() {
 
 function undoStroke() {
   if (!strokes.length) return;
-  strokes.pop();
-  if (swarms.length) swarms.pop();
+  const gone = strokes.pop();
+  const si = swarms.findIndex(w => w.src === gone);
+  if (si >= 0) swarms.splice(si, 1);
   redrawGhost();
   note = null; noteStats = null;
   if (!strokes.length) {
@@ -432,4 +452,30 @@ function updateLabels() {
   const n = strokes.length;
   if ($("reflectionNumber")) $("reflectionNumber").textContent = noteStats ? Math.round(noteStats.fid) + "%" : (n / 10).toFixed(1);
   if ($("reflectionText")) $("reflectionText").textContent = note || messages[min(floor(n / 3), messages.length - 1)];
+}
+// ---- Panel "¿Por qué hacerlo?": balance de la sesión, calculado con datos reales ----
+function setupWhy() {
+  const panel = $("whyPanel"); if (!panel) return;
+  const close = () => panel.classList.remove("open");
+  $("whyBtn").addEventListener("click", () => { fillWhy(); panel.classList.add("open"); });
+  $("whyClose").addEventListener("click", close);
+  window.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+}
+
+function fillWhy() {
+  const done = swarms.filter(w => w.done);
+  const sum = f => done.reduce((a, w) => a + f(w), 0);
+  const you = sum(w => w.humanSec), mach = sum(w => w.machineSec);
+  const pauses = sum(w => w.human.pauses);
+  const fid = done.length ? Math.round(sum(w => w.fid) / done.length) : 0;
+  $("whyStats").innerHTML = done.length
+    ? `<div><b>${strokes.length}</b>trazos tuyos</div><div><b>${you.toFixed(1)} s</b>de tu tiempo</div>` +
+      `<div><b>${pauses}</b>pausas y dudas</div><div><b>${mach.toFixed(1)} s</b>de la máquina</div>` +
+      `<div><b>${fid}%</b>fidelidad media</div>`
+    : "";
+  $("whyVerdict").textContent = !done.length
+    ? "Todavía no hay nada que medir. Dibuja un trazo y mira cómo intenta copiarte la máquina."
+    : `Copiar te costó a ti ${you.toFixed(1)} s de decisiones y a la máquina ${mach.toFixed(1)} s de aproximación. ` +
+      `Aun así conservó solo el ${fid}%. Lo que falta no es velocidad: son tus ${pauses} ${pauses === 1 ? "pausa" : "pausas"}, ` +
+      `el momento en que elegiste qué hacer. Ese es el trabajo que valió la pena.`;
 }

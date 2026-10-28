@@ -14,6 +14,7 @@
     <a class="brand" href="#" aria-label="Inicio">WB? <span>R8</span></a>
     <div class="status"><i></i><span>IA OBSERVANDO</span></div>
     <div class="top-controls">
+      <button id="whyBtn" class="clear-button" type="button">Why bother? <span>?</span></button>
       <button id="reset" class="clear-button" type="button">Limpiar todo <span>↗</span></button>
     </div>
   </header>
@@ -74,6 +75,15 @@
     <button id="undoMobile" type="button">Deshacer</button>
     <button id="clearMobile" type="button">Limpiar</button>
   </div>
+
+  <section id="whyPanel" class="why-panel" role="dialog" aria-label="Why Bother? ¿Por qué hacerlo?">
+    <div class="why-card">
+      <h2>Why bother?<br>¿Para qué tomarte el trabajo?</h2>
+      <div id="whyStats" class="why-stats"></div>
+      <p id="whyVerdict"></p>
+      <button id="whyClose" class="clear-button" type="button">Seguir dibujando <span>↗</span></button>
+    </div>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
   <script src="sketch.js"></script>
