@@ -1,0 +1,81 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#111318">
+  <title>¿Por qué hacerlo? — Reto 8</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="art" aria-label="Lienzo interactivo"></main>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Inicio">WB? <span>R8</span></a>
+    <div class="status"><i></i><span>IA OBSERVANDO</span></div>
+    <div class="top-controls">
+      <button id="reset" class="clear-button" type="button">Limpiar todo <span>↗</span></button>
+    </div>
+  </header>
+
+  <aside class="tools" aria-label="Herramientas de dibujo">
+    <div class="tool-group">
+      <span class="tool-label">GESTO</span>
+      <button class="tool active" data-tool="pen" title="Línea libre" aria-label="Línea libre"><span class="pen-icon">╱</span></button>
+      <button class="tool" data-tool="ribbon" title="Cinta" aria-label="Cinta"><span class="ribbon-icon">〰</span></button>
+      <button class="tool" data-tool="dotted" title="Puntos" aria-label="Puntos"><span class="dot-icon">•••</span></button>
+      <button class="tool" data-tool="eraser" title="Borrador de partículas" aria-label="Borrador"><span class="erase-icon">⌫</span></button>
+    </div>
+
+    <!-- PALETA EXTENDIDA -->
+    <div class="tool-group colors">
+      <span class="tool-label">TINTA</span>
+      <div class="color-grid">
+        <button class="swatch active" data-color="#ff4d25" style="--swatch:#ff4d25" title="Rojo terracota" aria-label="Rojo terracota"></button>
+        <button class="swatch" data-color="#17191f" style="--swatch:#17191f" title="Tinta negra" aria-label="Tinta negra"></button>
+        <button class="swatch" data-color="#f3cd37" style="--swatch:#f3cd37" title="Amarillo mostaza" aria-label="Amarillo mostaza"></button>
+        <button class="swatch" data-color="#3155d9" style="--swatch:#3155d9" title="Azul cobalto" aria-label="Azul cobalto"></button>
+        <button class="swatch" data-color="#2a9d8f" style="--swatch:#2a9d8f" title="Verde esmeralda" aria-label="Verde esmeralda"></button>
+        <button class="swatch" data-color="#8a4fff" style="--swatch:#8a4fff" title="Violeta profundo" aria-label="Violeta profundo"></button>
+      </div>
+      <!-- Custom Color Picker -->
+      <label class="custom-color-label" title="Color personalizado">
+        <input type="color" id="customColor" value="#ff4d25">
+        <span class="color-picker-icon">🎨</span>
+      </label>
+    </div>
+
+    <div class="tool-group size-tools">
+      <span class="tool-label">TAMAÑO</span>
+      <input id="strokeSize" type="range" min="2" max="24" value="8" aria-label="Tamaño del trazo">
+    </div>
+
+    <div class="tool-group ai-modes">
+      <span class="tool-label">RESPUESTA</span>
+      <button class="mode active" data-mode="continue" title="La máquina continúa tu gesto" aria-label="Continuar dibujo">↗</button>
+      <button class="mode" data-mode="mirror" title="La máquina refleja y conecta" aria-label="Reflejar dibujo">↔</button>
+      <button class="mode" data-mode="bloom" title="La máquina transforma el trazo" aria-label="Crear flor visual">✣</button>
+    </div>
+
+    <div class="tool-group extra-tools">
+      <span class="tool-label">VIENTO</span>
+      <button id="windBtn" class="tool" title="Soplar viento (Flechas Teclado)" aria-label="Viento">💨</button>
+    </div>
+  </aside>
+
+  <div id="drawHint" class="draw-hint"><span>↘</span><b>DIBUJA EN CUALQUIER LUGAR</b><small>haz clic, borra o presiona [Flechas] para soplar viento</small></div>
+
+  <div class="reflection" aria-live="polite">
+    <span id="reflectionNumber">0.0</span>
+    <p id="reflectionText">El esfuerzo empieza donde aparece una decisión.</p>
+  </div>
+
+  <div class="mobile-actions">
+    <button id="undoMobile" type="button">Deshacer</button>
+    <button id="clearMobile" type="button">Limpiar</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+  <script src="sketch.js"></script>
+</body>
+</html>

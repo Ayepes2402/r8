@@ -1,0 +1,308 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Instrument+Serif:ital@1&family=Manrope:wght@500;700;800&display=swap');
+
+:root {
+  --paper: #e8e4da;
+  --ink: #111318;
+  --coral: #ff4d25;
+  --blue: #3155d9;
+  --yellow: #f3cd37;
+  --line: rgba(17, 19, 24, .17);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Manrope', sans-serif;
+}
+
+button, input {
+  font: inherit;
+}
+
+/* El lienzo p5 debe recibir todos los eventos de ratón/puntero */
+canvas {
+  position: fixed !important;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto !important;
+}
+
+/* Elementos de interfaz sobre el lienzo */
+.topbar {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(232, 228, 218, .92);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.top-controls {
+  justify-self: end;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.brand {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: -.08em;
+}
+
+.brand span {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 5px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  font: 400 8px 'DM Mono';
+  letter-spacing: .08em;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 8px 'DM Mono';
+  letter-spacing: .12em;
+}
+
+.status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #51b66f;
+  box-shadow: 0 0 0 4px #51b66f18;
+  animation: pulse 1.5s infinite;
+}
+
+.clear-button {
+  border: 1px solid var(--ink);
+  background: transparent;
+  padding: 8px 11px;
+  font: 400 8px 'DM Mono';
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.clear-button span {
+  margin-left: 12px;
+  color: var(--coral);
+}
+
+.tools {
+  position: fixed;
+  z-index: 21;
+  left: 24px;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 60px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  padding-right: 2px;
+  pointer-events: auto;
+}
+
+.tool-group {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 6px 0 8px;
+  border: 1px solid var(--line);
+  background: rgba(232, 228, 218, .94);
+}
+
+.tool-label {
+  font: 400 6px 'DM Mono';
+  letter-spacing: .12em;
+}
+
+.tool, .swatch {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tool {
+  border: 1px solid transparent;
+  font-size: 15px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+}
+
+.tool.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.pen-icon { display: block; transform: rotate(-45deg); }
+.ribbon-icon { display: block; font-size: 18px; }
+.dot-icon { font-size: 10px; letter-spacing: -2px; }
+.erase-icon { font-size: 13px; }
+
+.color-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.swatch {
+  position: relative;
+  width: 22px;
+  height: 22px;
+}
+
+.swatch:before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--swatch);
+}
+
+.swatch.active:after {
+  content: '';
+  position: absolute;
+  inset: 0px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+}
+
+.custom-color-label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+  cursor: pointer;
+  border: 1px dashed var(--line);
+  border-radius: 50%;
+  transition: border-color .15s;
+}
+
+.custom-color-label:hover { border-color: var(--ink); }
+.custom-color-label input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.color-picker-icon { font-size: 11px; }
+
+.size-tools { padding: 6px 0; }
+.size-tools input {
+  width: 34px;
+  height: 65px;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  accent-color: var(--coral);
+}
+
+/* Los textos explicativos NO deben bloquear el mouse */
+.draw-hint {
+  position: fixed;
+  z-index: 15;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  width: max-content;
+  color: var(--coral);
+  pointer-events: none !important;
+  transition: .25s;
+  text-align: center;
+}
+
+.draw-hint.hidden {
+  opacity: 0;
+  transform: translate(-50%, -44%) scale(.94);
+}
+
+.draw-hint span { font-size: 34px; line-height: .8; }
+.draw-hint b { margin-top: 10px; font: 400 9px 'DM Mono'; letter-spacing: .13em; }
+.draw-hint small { margin-top: 5px; color: rgba(17, 19, 24, .55); font: 400 7px 'DM Mono'; }
+
+.reflection {
+  position: fixed;
+  z-index: 12;
+  left: 96px;
+  bottom: 28px;
+  width: 38%;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  align-items: start;
+  pointer-events: none !important;
+}
+
+.reflection span { color: var(--coral); font: 400 22px 'DM Mono'; letter-spacing: -.08em; }
+.reflection p { margin: 1px 0 0; border-left: 1px solid var(--ink); padding-left: 12px; font: 400 9px/1.55 'DM Mono'; }
+
+.mobile-actions { display: none; }
+
+@keyframes pulse {
+  50% { box-shadow: 0 0 0 7px #51b66f12; }
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none !important;
+  opacity: .16;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .07 0 0 0 0 .07 0 0 0 0 .09 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+body {
+  background-image: radial-gradient(rgba(17, 19, 24, .14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.ai-modes { padding-bottom: 6px; }
+.mode {
+  width: 34px;
+  height: 28px;
+  border: 1px solid transparent;
+  background: transparent;
+  font: 400 14px 'DM Mono';
+  cursor: pointer;
+}
+.mode.active {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(49, 85, 217, .07);
+}

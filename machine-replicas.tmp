@@ -1,0 +1,3 @@
+﻿      <svg id="machineReplicas" class="machine-replicas" viewBox="0 0 400 600" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div id="machineWaiting" class="machine-waiting">ESPERANDO TU TRAZO…</div>
+      <div class="machine-status"><b></b> OBSERVANDO TU DECISIÓN <strong id="machineCount">0</strong> COPIAS <span id="dots">•</span></div>
